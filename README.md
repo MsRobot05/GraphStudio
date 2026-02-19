@@ -56,11 +56,11 @@
 3. Open `index.html` in a browser (no server needed).
 4. Click a node → choose an algorithm → watch the magic!
 
----
 
 
 
----
+
+
 
 ## Tech Stack
 
@@ -68,7 +68,6 @@
 * **SVG** for graph rendering
 * Vanilla JS for BFS, DFS, and Dijkstra animations
 
----
 
 ## Screenshots 
 
@@ -78,8 +77,4 @@
 
 
 
----
 
-If you want, I can **also make a version that looks even more “modern GitHub ready” with badges, table of contents, and colored sections**—it will make your project pop immediately.
-
-Do you want me to do that next?
