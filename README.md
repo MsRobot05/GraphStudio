@@ -46,7 +46,7 @@
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/graph-visualizer.git
+   https://github.com/MsRobot05/GraphStudio.git
    
 2. Navigate into the folder:
 
