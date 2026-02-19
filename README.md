@@ -51,7 +51,7 @@
 2. Navigate into the folder:
 
    ```bash
-   cd graph-visualizer
+   cd GraphStudio
    ```
 3. Open `index.html` in a browser (no server needed).
 4. Click a node → choose an algorithm → watch the magic!
