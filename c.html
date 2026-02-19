@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Jump Search Visualizer</title>
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:white;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:40px;
+  min-height:100vh;
+}
+
+h2{margin-bottom:20px;}
+
+#array{
+  display:flex;
+  gap:10px;
+  margin-bottom:25px;
+}
+
+.box{
+  width:60px;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#475569;
+  border:2px solid white;
+  border-radius:8px;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+.controls{
+  margin-bottom:20px;
+}
+
+input{
+  padding:8px;
+  border:none;
+  border-radius:6px;
+  margin-right:10px;
+}
+
+button{
+  padding:8px 15px;
+  border:none;
+  border-radius:6px;
+  background:#3b82f6;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.status{
+  margin-top:15px;
+  font-size:18px;
+  text-align:center;
+}
+
+.jump{ background:#f59e0b !important; }   /* Jump block */
+.check{ background:#3b82f6 !important; }  /* Linear search */
+.found{ background:#22c55e !important; }  /* Found element */
+</style>
+</head>
+
+<body>
+
+<h2>Jump Search Visualizer</h2>
+
+<div id="array"></div>
+
+<div class="controls">
+  <input type="number" id="target" placeholder="Enter number to search">
+  <button onclick="runJumpSearch()">Search</button>
+</div>
+
+<div class="status" id="status">
+  Enter value and click Search. Steps will be explained live.
+</div>
+
+<script>
+
+const arr=[2,5,8,12,16,23,38,56,72,91];
+const arrayDiv=document.getElementById("array");
+
+// Render array visually
+function renderArray(){
+  arrayDiv.innerHTML="";
+  arr.forEach((val,index)=>{
+    const box=document.createElement("div");
+    box.className="box";
+    box.id="box-"+index;
+    box.innerText=val;
+    arrayDiv.appendChild(box);
+  });
+}
+renderArray();
+
+function sleep(ms){
+  return new Promise(r=>setTimeout(r,ms));
+}
+
+// Jump Search logic with live explanation
+async function runJumpSearch(){
+  const target=parseInt(document.getElementById("target").value);
+  if(isNaN(target)) return alert("Enter a number!");
+
+  renderArray();  // reset visuals
+  const status = document.getElementById("status");
+  const n=arr.length;
+  let step=Math.floor(Math.sqrt(n));
+  let prev=0;
+
+  status.innerHTML="🔹 Starting Jump Search for "+target+"<br>";
+  await sleep(800);
+
+  // Jump phase
+  while(arr[Math.min(step,n)-1] < target){
+    status.innerHTML+="Jump to index "+(step-1)+
+      " (value: "+arr[Math.min(step-1,n)-1]+")<br>";
+
+    highlightBox(Math.min(step-1,n-1),"jump");
+    await sleep(1000);
+
+    prev=step;
+    step+=Math.floor(Math.sqrt(n));
+
+    if(prev>=n){
+      status.innerHTML+="❌ Target not found in array";
+      return;
+    }
+  }
+
+  status.innerHTML+="🔹 Linear search in block ["+prev+" , "+Math.min(step,n-1)+"]<br>";
+
+  // Linear search phase
+  while(arr[prev] < target){
+    highlightBox(prev,"check");
+    status.innerHTML+="Checking index "+prev+" (value: "+arr[prev]+")<br>";
+    await sleep(1000);
+    prev++;
+    if(prev==Math.min(step,n)){
+      status.innerHTML+="❌ Target not found in array";
+      return;
+    }
+  }
+
+  if(arr[prev]==target){
+    highlightBox(prev,"found");
+    status.innerHTML+="✅ Found "+target+" at index "+prev;
+  }else{
+    status.innerHTML+="❌ Target not found in array";
+  }
+}
+
+// Highlight box with color
+function highlightBox(index,color){
+  document.querySelectorAll("#array .box")
+    .forEach(b=>b.style.background="#475569");
+  document.getElementById("box-"+index).className="box "+color;
+}
+
+</script>
+
+</body>
+</html>

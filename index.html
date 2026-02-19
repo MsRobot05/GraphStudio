@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Graph Visualizer </title>
+
+<style>
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  height:100vh;
+  color:white;
+}
+
+/* Sidebar */
+.sidebar{
+  width:400px;
+  padding:25px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(15px);
+  border-right:1px solid rgba(255,255,255,0.1);
+  overflow:auto;
+}
+
+.title{
+  font-size:22px;
+  font-weight:600;
+}
+
+.subtitle{
+  font-size:13px;
+  opacity:0.7;
+  margin-bottom:20px;
+}
+
+/* Buttons */
+button{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  color:white;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,0,0,0.4);
+}
+
+.bfs{background:linear-gradient(45deg,#3b82f6,#2563eb);}
+.dfs{background:linear-gradient(45deg,#f97316,#ea580c);}
+.dijkstra{background:linear-gradient(45deg,#22c55e,#16a34a);}
+.reset{background:linear-gradient(45deg,#ef4444,#dc2626);}
+
+/* Panels */
+.panel{
+  background:rgba(255,255,255,0.07);
+  padding:15px;
+  border-radius:12px;
+  margin-top:18px;
+  font-size:14px;
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.panel b{
+  display:block;
+  margin-bottom:10px;
+}
+
+input[type=range]{ width:100%; }
+
+/* How It Works */
+.how-item{
+  margin-bottom:14px;
+  padding:12px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.05);
+  transition:0.3s;
+}
+
+.how-item:hover{
+  background:rgba(255,255,255,0.12);
+  transform:translateX(6px);
+}
+
+.how-title{
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.how-desc{
+  font-size:13px;
+  opacity:0.85;
+  line-height:1.5;
+}
+
+/* Main Area */
+.main{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+svg{
+  width:80%;
+  height:80%;
+}
+
+/* Nodes */
+circle{
+  fill:#1e293b;
+  stroke:#38bdf8;
+  stroke-width:3;
+  transition:0.4s;
+  cursor:pointer;
+}
+
+circle:hover{
+  transform:scale(1.1);
+}
+
+/* Edges */
+line{
+  stroke:#64748b;
+  stroke-width:4;
+  transition:0.4s;
+}
+
+/* Animations */
+.active{
+  fill:#facc15 !important;
+  transform:scale(1.2);
+  filter:drop-shadow(0 0 15px #facc15);
+}
+
+.visited{
+  fill:#22c55e !important;
+  filter:drop-shadow(0 0 12px #22c55e);
+}
+
+.edgeActive{
+  stroke:#facc15 !important;
+  stroke-width:6;
+  filter:drop-shadow(0 0 10px #facc15);
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="title">Graph Visualizer </div>
+<div class="subtitle"> Algorithm Animation</div>
+
+<button class="bfs" onclick="runBFS()">Run BFS</button>
+<button class="dfs" onclick="runDFS()">Run DFS</button>
+<button class="dijkstra" onclick="runDijkstra()">Run Dijkstra</button>
+<button class="reset" onclick="resetAll()">Reset</button>
+
+<div class="panel">
+<b>Speed Control</b>
+<input type="range" min="200" max="1500" value="700" id="speedSlider">
+</div>
+
+<div class="panel">
+<b>Status</b>
+<div id="status">Ready</div>
+</div>
+
+<div class="panel">
+<b>Live Structure</b>
+<div id="structureInfo">-</div>
+</div>
+
+<div class="panel">
+<b>Distance Table</b>
+<div id="distance"></div>
+</div>
+
+<div class="panel">
+<b>How It Works</b>
+
+<div class="how-item">
+<div class="how-title">1️⃣ Select Start Node</div>
+<div class="how-desc">
+Click any node (A–E). That node becomes the algorithm's starting point.
+</div>
+</div>
+
+<div class="how-item">
+<div class="how-title">2️⃣ Choose Algorithm</div>
+<div class="how-desc">
+• BFS → Level order traversal using Queue (FIFO). <br>
+• DFS → Depth traversal using Stack (LIFO). <br>
+• Dijkstra → Finds shortest path using minimum distance selection.
+</div>
+</div>
+
+<div class="how-item">
+<div class="how-title">3️⃣ Watch Smart Animation</div>
+<div class="how-desc">
+🟡 Yellow = Currently Processing <br>
+🟢 Green = Completed / Visited <br>
+Glowing edges = Active traversal
+</div>
+</div>
+
+<div class="how-item">
+<div class="how-title">4️⃣ Control Speed</div>
+<div class="how-desc">
+Adjust the slider to slow down or speed up the algorithm in real-time.
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="main">
+<svg viewBox="0 0 600 400">
+
+<line id="A-B" x1="100" y1="200" x2="250" y2="100"/>
+<line id="A-C" x1="100" y1="200" x2="250" y2="300"/>
+<line id="B-D" x1="250" y1="100" x2="400" y2="200"/>
+<line id="C-D" x1="250" y1="300" x2="400" y2="200"/>
+<line id="D-E" x1="400" y1="200" x2="520" y2="200"/>
+
+<circle id="A" cx="100" cy="200" r="30"/>
+<text x="100" y="205" text-anchor="middle" fill="white">A</text>
+
+<circle id="B" cx="250" cy="100" r="30"/>
+<text x="250" y="105" text-anchor="middle" fill="white">B</text>
+
+<circle id="C" cx="250" cy="300" r="30"/>
+<text x="250" y="305" text-anchor="middle" fill="white">C</text>
+
+<circle id="D" cx="400" cy="200" r="30"/>
+<text x="400" y="205" text-anchor="middle" fill="white">D</text>
+
+<circle id="E" cx="520" cy="200" r="30"/>
+<text x="520" y="205" text-anchor="middle" fill="white">E</text>
+
+</svg>
+</div>
+
+<script>
+
+const graph={
+A:["B","C"],
+B:["D"],
+C:["D"],
+D:["E"],
+E:[]
+};
+
+const weights={
+A:{B:2,C:4},
+B:{D:1},
+C:{D:3},
+D:{E:2},
+E:{}
+};
+
+let startNode=null;
+let running=false;
+
+function speed(){
+return parseInt(document.getElementById("speedSlider").value);
+}
+
+function sleep(ms){
+return new Promise(r=>setTimeout(r,ms));
+}
+
+document.querySelectorAll("circle").forEach(circle=>{
+circle.addEventListener("click",()=>{
+if(running) return;
+resetVisual();
+startNode=circle.id;
+circle.classList.add("active");
+document.getElementById("status").innerText="Start Node: "+startNode;
+});
+});
+
+function resetVisual(){
+document.querySelectorAll("circle")
+.forEach(n=>n.classList.remove("visited","active"));
+document.querySelectorAll("line")
+.forEach(e=>e.classList.remove("edgeActive"));
+document.getElementById("structureInfo").innerText="-";
+document.getElementById("distance").innerHTML="";
+}
+
+function resetAll(){
+resetVisual();
+startNode=null;
+document.getElementById("status").innerText="Ready";
+}
+
+async function animateNode(node){
+document.getElementById("status").innerText="Visiting "+node;
+let el=document.getElementById(node);
+el.classList.add("active");
+await sleep(speed()/1.5);
+el.classList.remove("active");
+el.classList.add("visited");
+}
+
+function highlightEdge(from,to){
+document.getElementById(from+"-"+to)
+?.classList.add("edgeActive");
+}
+
+async function runBFS(){
+if(!startNode) return alert("Select start node!");
+running=true;
+resetVisual();
+let visited=new Set();
+let queue=[startNode];
+
+while(queue.length){
+document.getElementById("structureInfo").innerText=
+"Queue: "+queue.join(" → ");
+
+let node=queue.shift();
+
+if(!visited.has(node)){
+visited.add(node);
+await animateNode(node);
+for(let neighbor of graph[node]){
+highlightEdge(node,neighbor);
+queue.push(neighbor);
+}
+}
+await sleep(speed());
+}
+running=false;
+}
+
+async function runDFS(){
+if(!startNode) return alert("Select start node!");
+running=true;
+resetVisual();
+let visited=new Set();
+let stack=[startNode];
+
+while(stack.length){
+document.getElementById("structureInfo").innerText=
+"Stack: "+stack.join(" → ");
+
+let node=stack.pop();
+
+if(!visited.has(node)){
+visited.add(node);
+await animateNode(node);
+for(let neighbor of [...graph[node]].reverse()){
+highlightEdge(node,neighbor);
+stack.push(neighbor);
+}
+}
+await sleep(speed());
+}
+running=false;
+}
+
+async function runDijkstra(){
+if(!startNode) return alert("Select start node!");
+running=true;
+resetVisual();
+
+let dist={};
+Object.keys(graph).forEach(n=>dist[n]=Infinity);
+dist[startNode]=0;
+
+let visited=new Set();
+
+while(true){
+let closest=null;
+for(let node in dist){
+if(!visited.has(node) &&
+(closest===null || dist[node]<dist[closest])){
+closest=node;
+}
+}
+if(!closest) break;
+
+visited.add(closest);
+await animateNode(closest);
+
+for(let neighbor in weights[closest]){
+let newDist=dist[closest]+weights[closest][neighbor];
+if(newDist<dist[neighbor]){
+dist[neighbor]=newDist;
+}
+highlightEdge(closest,neighbor);
+}
+
+document.getElementById("distance").innerHTML=
+Object.entries(dist)
+.map(([n,d])=>n+" : "+d)
+.join("<br>");
+
+await sleep(speed());
+}
+running=false;
+}
+
+</script>
+
+</body>
+</html>
