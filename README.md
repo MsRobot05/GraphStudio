@@ -1,6 +1,7 @@
 
 
-# Graph Visualizer 🟢🟡
+#  🟡 Graph Visualizer 🟢
+
 
 **Interactive visualization of BFS, DFS, and Dijkstra algorithms on a graph.**
 
@@ -25,18 +26,21 @@
 ## How It Works
 
 1. **Select Start Node**
+   
    Click any node (A–E). This node becomes the starting point.
 
-2. **Choose Algorithm**
+3. **Choose Algorithm**
 
    * **BFS** → Level order traversal (Queue, FIFO)
    * **DFS** → Depth-first traversal (Stack, LIFO)
    * **Dijkstra** → Shortest path using weighted distances
 
-3. **Watch Animation**
+4. **Watch Animation**
+   
    Nodes and edges are highlighted as the algorithm runs.
 
-4. **Control Speed**
+6. **Control Speed**
+   
    Adjust the slider to slow down or speed up the visualization.
 
 
